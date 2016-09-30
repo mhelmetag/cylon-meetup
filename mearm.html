@@ -1,0 +1,50 @@
+<!-- right (pin 12) - bottom: 40, top: 100
+     left (pin 11) - bottom: 40, top: 70 (inverted)
+     claw (pin 15) - bottom: 50, top: 120
+     base (pin 13) - bottom: 0, top: 180 -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+  </head>
+  <body>
+    <span>rightServo:</span><input type="range" id="rightServo" min="40" max="100" defaultValue="50">
+    <span>leftServo:</span><input type="range" id="leftServo" min="40" max="70" defaultValue="50">
+    <span>clawServo:</span><input type="range" id="clawServo" min="50" max="120" defaultValue="50">
+    <span>baseServo:</span><input type="range" id="baseServo" min="0" max="180" defaultValue="90">
+  </body>
+  <script type="text/javascript">
+    console.log('Creating sockets');
+
+    var baseUrl = 'http://192.168.43.150:3000/api/robots/mearm/devices/';
+
+    var sockets = {
+      'rightServo': io(baseUrl + 'rightServo'),
+      'leftServo': io(baseUrl + 'leftServo'),
+      'clawServo': io(baseUrl + 'clawServo'),
+      'baseServo': io(baseUrl + 'baseServo')
+    };
+
+    console.log(sockets);
+
+    var inputs = document.getElementsByTagName('input');
+
+    for (var i = 0; i < inputs.length; i++) {
+      inputs[i].addEventListener('change', function(event) {
+        var element = event.target;
+        console.log(element);
+        setAngle(element.id, element.value);
+      })
+    }
+
+    function setAngle(deviceName, angle) {
+      var deviceSocket = sockets[deviceName];
+      var angleInt = parseInt(angle);
+      deviceSocket.emit('angle', angleInt);
+      console.log('Set servo angle of ' + deviceName + ' to ' + angle);
+    }
+  </script>
+</html>
